@@ -1,5 +1,36 @@
 #!/bin/bash
 
+echo "=== 内核更新脚本（ghproxy加速版） ==="
+echo ""
+echo "请选择要安装的内核版本："
+echo "  1) kernel-v7.0"
+echo "  2) 自定义版本号"
+echo ""
+read -p "请输入选项 [1-2]: " choice
+
+case $choice in
+    1)
+        KERNEL_VERSION="7.0"
+        ;;
+    2)
+        read -p "请输入版本号（例如 7.0、7.10）: " KERNEL_VERSION
+        # 验证版本号格式（X.Y 或 X.Y.Z）
+        if [[ ! "$KERNEL_VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+            echo "错误：版本号格式不正确，应为 X.Y 或 X.Y.Z 格式（例如 7.0、7.10）"
+            exit 1
+        fi
+        ;;
+    *)
+        echo "错误：无效的选项"
+        exit 1
+        ;;
+esac
+
+KERNEL_TAG="kernel-v${KERNEL_VERSION}"
+echo ""
+echo "已选择内核版本: $KERNEL_TAG"
+echo ""
+
 echo "=== 开始更新内核 ==="
 
 echo "1. 切换到/tmp工作目录"
@@ -10,12 +41,12 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "2. 下载编译产物：image/headers"
-wget https://ghfast.top/https://github.com/GengWei1997/kernel-deb/releases/download/v6.18/linux-image-xiaomi-raphael.deb
+wget "https://ghfast.top/https://github.com/GengWei1997/kernel-deb/releases/download/${KERNEL_TAG}/linux-image-xiaomi-raphael.deb"
 if [ $? -ne 0 ]; then
     echo "错误：linux-image 下载失败"
     exit 1
 fi
-wget https://ghfast.top/https://github.com/GengWei1997/kernel-deb/releases/download/v6.18/linux-headers-xiaomi-raphael.deb
+wget "https://ghfast.top/https://github.com/GengWei1997/kernel-deb/releases/download/${KERNEL_TAG}/linux-headers-xiaomi-raphael.deb"
 if [ $? -ne 0 ]; then
     echo "错误：linux-headers 下载失败"
     exit 1
