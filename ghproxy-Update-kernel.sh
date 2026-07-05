@@ -3,22 +3,17 @@
 echo "=== 内核更新脚本（ghproxy加速版） ==="
 echo ""
 echo "请选择要安装的内核版本："
-echo "  1) kernel-v7.0"
+echo "  1) kernel-v7.1"
 echo "  2) 自定义版本号"
 echo ""
 read -p "请输入选项 [1-2]: " choice
 
 case $choice in
     1)
-        KERNEL_VERSION="7.0"
+        KERNEL_VERSION="7.1"
         ;;
     2)
-        read -p "请输入版本号（例如 7.0、7.10）: " KERNEL_VERSION
-        # 验证版本号格式（X.Y 或 X.Y.Z）
-        if [[ ! "$KERNEL_VERSION" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
-            echo "错误：版本号格式不正确，应为 X.Y 或 X.Y.Z 格式（例如 7.0、7.10）"
-            exit 1
-        fi
+        read -p "请输入版本号: " KERNEL_VERSION
         ;;
     *)
         echo "错误：无效的选项"
@@ -59,10 +54,7 @@ echo "4. 查找并卸载所有linux-xiaomi内核包"
 echo "   正在查找linux-xiaomi相关包..."
 dpkg -l | grep -E "linux-headers|linux-image|linux-xiaomi-raphael" | awk '{print $2}' | xargs -r dpkg -P
 
-echo "5. 清理/lib/modules目录（删除所有内核模块）"
-rm -rf /lib/modules/*
-
-echo "6. 安装新的 linux-image 与 linux-headers"
+echo "5. 安装新的 linux-image 与 linux-headers"
 if [ -f "linux-image-xiaomi-raphael.deb" ] && [ -f "linux-headers-xiaomi-raphael.deb" ]; then
     dpkg -i linux-image-xiaomi-raphael.deb linux-headers-xiaomi-raphael.deb
     if [ $? -ne 0 ]; then
@@ -74,20 +66,11 @@ else
     exit 1
 fi
 
-echo "7. 显示安装后的Linux相关软件包"
-dpkg --get-selections | grep linux
-
-echo "8. 为所有内核生成initramfs镜像"
-update-initramfs -c -k all
-if [ $? -ne 0 ]; then
-    echo "警告：initramfs更新可能存在问题"
-fi
-
-echo "9. 清理旧的启动文件"
+echo "6. 清理旧的启动文件"
 rm -f /boot/initramfs
 rm -f /boot/linux.efi
 
-echo "10. 重命名启动文件"
+echo "7. 重命名启动文件"
 echo "   将最新的initrd.img移动到/boot/initramfs"
 latest_initrd=$(ls -t /boot/initrd.img-* 2>/dev/null | head -1)
 if [ -n "$latest_initrd" ]; then
@@ -106,7 +89,7 @@ else
     echo "   警告：未找到vmlinuz-*文件"
 fi
 
-echo "11. 显示/boot目录内容"
+echo "8. 显示/boot目录内容"
 ls -la /boot
 
 echo "=== 验证启动文件 ==="
@@ -125,7 +108,7 @@ else
     echo "请检查上述步骤是否有错误"
 fi
 
-echo "12. 清理下载的文件"
+echo "9. 清理下载的文件"
 rm -f linux-image-xiaomi-raphael.deb linux-headers-xiaomi-raphael.deb
 
 echo "=== 脚本执行完成 ==="
